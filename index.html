@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriAdapt - Landing Page</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+
+<!-- Tambahkan script sebelum penutup body -->
+<script src="js/script.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriAdapt • Cuaca & Rekomendasi Tanam</title>
+  <meta name="description" content="Dashboard cuaca harian, rekomendasi tanam, notifikasi cuaca ekstrem, dan riwayat tanam Anda—semua dalam satu website." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- CSS di root -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="container nav-wrap">
+    <div class="brand">
+      <img src="assets/images/logo-img.png" alt="Logo AgriAdapt" class="logo-img">
+      <div class="title">AgriAdapt</div>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#dashboard">Cuaca</a>
+      <a href="#rekom">Rekomendasi</a>
+      <a href="#notifikasi">Notifikasi</a>
+      <a href="#riwayat">Riwayat</a>
+      <a href="#wireframe">Wireframe</a>
+    </div>
+    <div class="nav-actions">
+      <button type="button" class="cta-btn" onclick="scrollToEl('#mulai')">Mulai</button>
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    </div>
+  </div>
+</nav>
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#dashboard">Dashboard</a>
+  <a href="#dashboard">Cuaca</a>
+  <a href="#rekom">Rekomendasi</a>
+  <a href="#notifikasi">Notifikasi</a>
+  <a href="#riwayat">Riwayat</a>
+  <a href="#wireframe">Wireframe</a>
+</div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="bg-blob" aria-hidden="true"></div>
+    <div class="container hero-grid">
+      <div>
+        <h1>Asisten Cuaca & Tanam <span style="color:var(--primary)">canggih</span> untuk kebun Anda</h1>
+        <p>Monitor cuaca secara realtime, temukan rekomendasi tanaman terbaik, dan kelola riwayat penanaman dengan mudah.</p>
+        <div class="stats">
+          <div class="stat"><div class="num" id="statKota">—</div><div class="lbl">Lokasi</div></div>
+          <div class="stat"><div class="num" id="statCuaca">—</div><div class="lbl">Cuaca Saat Ini</div></div>
+          <div class="stat"><div class="num" id="statSuhu">—</div><div class="lbl">Suhu</div></div>
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>Cuaca Cepat</h3>
+        <div class="row">
+          <input id="inputKota" class="input" placeholder="Masukkan kota, mis. Kendari" autocomplete="off" />
+          <button type="button" class="btn primary" onclick="fakeFetchWeather()">Lihat</button>
+        </div>
+        <div class="space"></div>
+        <div class="grid grid-3">
+          <div class="card">
+            <h3>Ringkasan</h3>
+            <div class="muted" id="quickSummary">Masukkan kota untuk melihat ringkasan.</div>
+          </div>
+          <div class="card">
+            <h3>Parameter</h3>
+            <div class="muted" id="quickParams">Kelembapan, angin, indeks UV…</div>
+          </div>
+          <div class="card">
+            <h3>Alert</h3>
+            <div class="muted" id="quickAlert">Tidak ada peringatan.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="container">
+    <div class="section-title"><span class="dot"></span><h2>Dashboard</h2></div>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Cuaca Saat Ini</h3>
+        <div class="row"><div id="nowIcon">⛅</div><div id="nowDesc" class="right">—</div></div>
+        <div class="row"><div>Suhu</div><div id="nowTemp" class="right">—</div></div>
+        <div class="row"><div>Kelembapan</div><div id="nowHum" class="right">—</div></div>
+        <div class="row"><div>Angin</div><div id="nowWind" class="right">—</div></div>
+      </div>
+      <div class="card">
+        <h3>Prakiraan 5 Hari</h3>
+        <table>
+          <thead><tr><th>Hari</th><th>Cuaca</th><th>Min-Maks</th></tr></thead>
+          <tbody id="forecastRows"></tbody>
+        </table>
+        <div class="hint">*Data contoh. Sambungkan ke API cuaca untuk realtime.</div>
+      </div>
+      <div class="card">
+        <h3>Indeks Kelayakan Tanam</h3>
+        <div id="ikmScore" style="font-size:34px;font-weight:800">—</div>
+        <div class="muted">Skor berdasarkan suhu, curah hujan, dan kelembapan tanah (mock).</div>
+        <div class="space"></div>
+        <div id="ikmBadge" class="badge ok" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REKOMENDASI TANAM -->
+  <section id="rekom" class="container">
+    <div class="section-title"><span class="dot"></span><h2>Rekomendasi Tanam</h2></div>
+    <div class="card">
+      <div class="grid grid-2">
+        <div>
+          <label class="muted">Pilih Komoditas</label>
+          <select id="selectKomoditas" onchange="updateRekom()">
+            <option>Padi</option>
+            <option>Jagung</option>
+            <option>Cabai</option>
+            <option>Tomat</option>
+            <option>Kangkung</option>
+          </select>
+          <div class="space"></div>
+          <label class="muted">Tipe Lahan</label>
+          <select id="selectLahan" onchange="updateRekom()">
+            <option>Sawah</option>
+            <option>Tegalan</option>
+            <option>Greenhouse</option>
+          </select>
+        </div>
+        <div>
+          <h3 id="rekomTitle">—</h3>
+          <ul id="rekomList" class="muted" style="padding-left:18px;line-height:1.8"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTIFIKASI CUACA -->
+  <section id="notifikasi" class="container">
+    <div class="section-title"><span class="dot"></span><h2>Notifikasi Cuaca</h2></div>
+    <div class="card">
+      <div class="row">
+        <input id="inputEmail" class="input" placeholder="Email untuk notifikasi peringatan cuaca" autocomplete="email" />
+        <button type="button" class="btn primary" onclick="subscribeAlert()">Aktifkan Notifikasi</button>
+      </div>
+      <div class="space"></div>
+      <div id="notifStatus" class="muted">Belum berlangganan.</div>
+    </div>
+  </section>
+
+  <!-- RIWAYAT TANAM -->
+  <section id="riwayat" class="container">
+    <div class="section-title"><span class="dot"></span><h2>Riwayat Tanam</h2></div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Tambah Catatan</h3>
+        <div class="row"><input id="crop" class="input" placeholder="Komoditas (mis. Padi Inpari)"/></div>
+        <div class="space"></div>
+        <div class="row"><input id="date" type="date" class="input"/></div>
+        <div class="space"></div>
+        <div class="row"><input id="note" class="input" placeholder="Catatan (mis. persemaian)"/></div>
+        <div class="space"></div>
+        <button type="button" class="btn primary" onclick="addLog()">Simpan</button>
+      </div>
+      <div class="card">
+        <h3>Daftar Riwayat</h3>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Komoditas</th><th>Catatan</th><th></th></tr></thead>
+          <tbody id="logRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="mulai" class="container">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <h3>Siap dikembangkan ke backend & API cuaca</h3>
+        <div class="muted">Struktur komponen rapih, style konsisten, dan fungsi-fungsi mock sudah disiapkan.</div>
+      </div>
+      <button type="button" class="cta-btn" onclick="alert('Mantap! Tinggal sambungkan API cuaca & database.')">Saya Paham</button>
+    </div>
+  </section>
+  <section id="wireframe" class="container">
+  <div class="section-title"><span class="dot"></span><h2>Wireframe (Semua Halaman)</h2></div>
+
+  <!-- DASHBOARD -->
+  <div class="wf-group">
+    <h3 class="wf-h3">Dashboard</h3>
+    <div class="wf-grid wf-2">
+      <div class="wf-box" data-note="Header Status">Ringkasan wilayah & tanggal</div>
+      <div class="wf-grid wf-4">
+        <div class="wf-box" data-note="KPI">Kondisi Cuaca</div>
+        <div class="wf-box" data-note="KPI">Indeks Kelayakan Tanam</div>
+        <div class="wf-box" data-note="KPI">Notifikasi Aktif</div>
+        <div class="wf-box" data-note="KPI">Luas Lahan</div>
+      </div>
+      <div class="wf-box" data-note="Grafik">Grafik tren 7 hari (suhu / hujan)</div>
+      <div class="wf-box" data-note="Filter">Filter: lokasi • komoditas • periode</div>
+      <div class="wf-box" data-note="Rekom Top 5">Top 5 rekomendasi tanam</div>
+      <div class="wf-box" data-note="Aktivitas">Log aktivitas</div>
+    </div>
+  </div>
+
+  <!-- CUACA SAAT INI -->
+  <div class="wf-group">
+    <h3 class="wf-h3">Cuaca Saat Ini</h3>
+    <div class="wf-grid wf-2">
+      <div class="wf-grid wf-3">
+        <div class="wf-box" data-note="Kartu">Suhu / RealFeel</div>
+        <div class="wf-box" data-note="Kartu">Kelembapan / Angin</div>
+        <div class="wf-box" data-note="Kartu">Curah Hujan</div>
+      </div>
+      <div class="wf-box" data-note="Alert">Peringatan cuaca (trigger popup)</div>
+      <div class="wf-box" data-note="Timeline">Prakiraan per jam (24 jam)</div>
+      <div class="wf-box" data-note="7 Hari">Prakiraan 7 hari</div>
+      <div class="wf-box" data-note="Aksi">Aktifkan Notifikasi</div>
+    </div>
+  </div>
+
+  <!-- REKOMENDASI TANAM -->
+  <div class="wf-group">
+    <h3 class="wf-h3">Rekomendasi Tanam</h3>
+    <div class="wf-grid wf-2">
+      <div class="wf-box" data-note="Form">
+        Form Input:
+        <ul class="wf-ul">
+          <li>Jenis Tanaman (select)</li>
+          <li>Jenis Tanah/Lahan (select)</li>
+          <li>Luas Lahan (number)</li>
+          <li>Target Panen (date)</li>
+        </ul>
+      </div>
+      <div class="wf-box" data-note="Hasil">Tabel rekomendasi: skor kelayakan, jadwal tanam, catatan</div>
+      <div class="wf-box" data-note="Faktor Iklim">Ringkasan suhu • hujan • angin</div>
+      <div class="wf-box" data-note="SOP / Tips">Langkah budidaya ringkas</div>
+      <div class="wf-box" data-note="Risiko">Risiko & mitigasi</div>
+    </div>
+  </div>
+
+  <!-- NOTIFIKASI -->
+  <div class="wf-group">
+    <h3 class="wf-h3">Notifikasi</h3>
+    <div class="wf-grid wf-2">
+      <div class="wf-box" data-note="Preferensi">Preferensi & status langganan</div>
+      <div class="wf-box" data-note="List">Daftar notifikasi terbaru</div>
+      <div class="wf-box" data-note="Filter">Filter: jenis • tingkat • tanggal</div>
+      <div class="wf-box" data-note="Detail">Panel detail (konten & tindakan)</div>
+      <div class="wf-box" data-note="Test">Tombol uji popup/alert</div>
+    </div>
+  </div>
+
+  <!-- RIWAYAT TANAM -->
+  <div class="wf-group">
+    <h3 class="wf-h3">Riwayat Tanam</h3>
+    <div class="wf-grid wf-2">
+      <div class="wf-box" data-note="Header">Ringkasan musim & total plot</div>
+      <div class="wf-box" data-note="Tabel">Tabel: komoditas • luas • tgl tanam/panen • hasil</div>
+      <div class="wf-box" data-note="Grafik">Grafik hasil panen per musim</div>
+      <div class="wf-box" data-note="Analitik">Rata-rata produktivitas & perbandingan</div>
+      <div class="wf-box" data-note="Lampiran">Catatan & dokumen (opsional)</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-wrap">
+    
+    <!-- Brand + Deskripsi -->
+    <div class="footer-brand">
+      <h2 class="brand-name">AgriAdapt</h2>
+      <p>Asisten canggih untuk cuaca & rekomendasi tanam.  
+      Pantau kondisi realtime, dapatkan rekomendasi, dan simpan riwayat tanam Anda.</p>
+    </div>
+
+    <!-- Tautan Navigasi -->
+    <div class="footer-links">
+      <h3>Tautan</h3>
+      <ul>
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#rekom">Rekomendasi</a></li>
+        <li><a href="#notifikasi">Notifikasi</a></li>
+        <li><a href="#riwayat">Riwayat</a></li>
+        <li><a href="#wireframe">Wireframe</a></li>
+      </ul>
+    </div>
+
+    <!-- Legal -->
+    <div class="footer-legal">
+      <h3>Legal</h3>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms & Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © <span id="y">2025</span> AgriAdapt.
+  </div>
+</footer>
+
+  <!-- Toast container -->
+  <div id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- JS di root -->
+  <script>
+    window.OPENWEATHER_KEY = "1892b48b6f9df4ffa4b0158304dc2190";
+  </script>
+  <script src="./script.js" defer></script>
+
+</body>
+</html>
