@@ -52,3 +52,5 @@ AgriAdapt/
 
 ## 📂 Struktur Folder
 
+=======
+# kelompok_6_agriadapt
