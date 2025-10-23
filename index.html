@@ -1,23 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriAdapt - Landing Page</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-
-
-<!-- Tambahkan script sebelum penutup body -->
-<script src="js/script.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AgriAdapt • Cuaca & Rekomendasi Tanam</title>
-  <meta name="description" content="Dashboard cuaca harian, rekomendasi tanam, notifikasi cuaca ekstrem, dan riwayat tanam Anda—semua dalam satu website." />
+  <meta name="description" content="Dashboard cuaca harian, rekomendasi tanam—semua dalam satu website." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- CSS di root -->
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -25,29 +15,26 @@
 <nav class="nav">
   <div class="container nav-wrap">
     <div class="brand">
-      <img src="assets/images/logo-img.png" alt="Logo AgriAdapt" class="logo-img">
+      <img src="assets\images\logo-img.png" alt="Logo AgriAdapt" class="logo-img">
       <div class="title">AgriAdapt</div>
     </div>
     <div class="nav-links" id="navLinks">
       <a href="#dashboard">Dashboard</a>
       <a href="#dashboard">Cuaca</a>
       <a href="#rekom">Rekomendasi</a>
-      <a href="#notifikasi">Notifikasi</a>
-      <a href="#riwayat">Riwayat</a>
     </div>
     <div class="nav-actions">
-
+      <button class="btn-login" onclick="showLoginModal()">Login</button>
       <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </div>
   </div>
 </nav>
+
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <a href="#dashboard">Dashboard</a>
   <a href="#dashboard">Cuaca</a>
   <a href="#rekom">Rekomendasi</a>
-  <a href="#notifikasi">Notifikasi</a>
-  <a href="#riwayat">Riwayat</a>
 </div>
 
   <!-- HERO -->
@@ -55,8 +42,8 @@
     <div class="bg-blob" aria-hidden="true"></div>
     <div class="container hero-grid">
       <div>
-        <h1>Asisten Cuaca & Tanam <span style="color:var(--primary)">canggih</span> untuk kebun Anda</h1>
-        <p>Monitor cuaca secara realtime, temukan rekomendasi tanaman terbaik, dan kelola riwayat penanaman dengan mudah.</p>
+        <h1>Solusi <span style="color:var(--primary)">Cerdas</span> Cuaca & Tanam untuk Kebun Anda</h1>
+        <p>Pantau cuaca realtime, dapatkan rekomendasi tanaman terbaik untuk hasil panen maksimal.</p>
         <div class="stats">
           <div class="stat"><div class="num" id="statKota">—</div><div class="lbl">Lokasi</div></div>
           <div class="stat"><div class="num" id="statCuaca">—</div><div class="lbl">Cuaca Saat Ini</div></div>
@@ -77,7 +64,7 @@
           </div>
           <div class="card">
             <h3>Parameter</h3>
-            <div class="muted" id="quickParams">Kelembapan, angin, indeks UV…</div>
+            <div class="muted" id="quickParams">Kelembapan, angin…</div>
           </div>
           <div class="card">
             <h3>Alert</h3>
@@ -105,12 +92,12 @@
           <thead><tr><th>Hari</th><th>Cuaca</th><th>Min-Maks</th></tr></thead>
           <tbody id="forecastRows"></tbody>
         </table>
-        <div class="hint">*Data contoh. Sambungkan ke API cuaca untuk realtime.</div>
+        <div class="hint">*Data dari API OpenWeatherMap</div>
       </div>
       <div class="card">
         <h3>Indeks Kelayakan Tanam</h3>
         <div id="ikmScore" style="font-size:34px;font-weight:800">—</div>
-        <div class="muted">Skor berdasarkan suhu, curah hujan, dan kelembapan tanah (mock).</div>
+        <div class="muted">Skor berdasarkan suhu, kelembapan, dan angin.</div>
         <div class="space"></div>
         <div id="ikmBadge" class="badge ok" style="display:none"></div>
       </div>
@@ -123,20 +110,26 @@
     <div class="card">
       <div class="grid grid-2">
         <div>
-          <label class="muted">Pilih Komoditas</label>
+          <label class="muted">Jenis Tanaman</label>
           <select id="selectKomoditas" onchange="updateRekom()">
             <option>Padi</option>
-            <option>Jagung</option>
-            <option>Cabai</option>
             <option>Tomat</option>
             <option>Kangkung</option>
+            <option>Cabai</option>
+            <option>Jagung</option>
           </select>
           <div class="space"></div>
-          <label class="muted">Tipe Lahan</label>
+          <label class="muted">Jenis Lahan</label>
           <select id="selectLahan" onchange="updateRekom()">
-            <option>Sawah</option>
             <option>Tegalan</option>
-            <option>Greenhouse</option>
+            <option>Sawah</option>
+            <option>Kebun</option>
+          </select>
+          <div class="space"></div>
+          <label class="muted">Pilih Musim</label>
+          <select id="selectMusim" onchange="updateRekom()">
+            <option>Kemarau</option>
+            <option>Hujan</option>
           </select>
         </div>
         <div>
@@ -147,58 +140,6 @@
     </div>
   </section>
 
-  <!-- NOTIFIKASI CUACA -->
-  <section id="notifikasi" class="container">
-    <div class="section-title"><span class="dot"></span><h2>Notifikasi Cuaca</h2></div>
-    <div class="card">
-      <div class="row">
-        <input id="inputEmail" class="input" placeholder="Email untuk notifikasi peringatan cuaca" autocomplete="email" />
-        <button type="button" class="btn primary" onclick="subscribeAlert()">Aktifkan Notifikasi</button>
-      </div>
-      <div class="space"></div>
-      <div id="notifStatus" class="muted">Belum berlangganan.</div>
-    </div>
-  </section>
-
-  <!-- RIWAYAT TANAM -->
-  <section id="riwayat" class="container">
-    <div class="section-title"><span class="dot"></span><h2>Riwayat Tanam</h2></div>
-    <div class="grid grid-2">
-      <div class="card">
-        <h3>Tambah Catatan</h3>
-        <div class="row"><input id="crop" class="input" placeholder="Komoditas (mis. Padi Inpari)"/></div>
-        <div class="space"></div>
-        <div class="row"><input id="date" type="date" class="input"/></div>
-        <div class="space"></div>
-        <div class="row"><input id="note" class="input" placeholder="Catatan (mis. persemaian)"/></div>
-        <div class="space"></div>
-        <button type="button" class="btn primary" onclick="addLog()">Simpan</button>
-      </div>
-      <div class="card">
-        <h3>Daftar Riwayat</h3>
-        <table>
-          <thead><tr><th>Tanggal</th><th>Komoditas</th><th>Catatan</th><th></th></tr></thead>
-          <tbody id="logRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section id="mulai" class="container">
-    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-      <div>
-        <h3>Siap dikembangkan ke backend & API cuaca</h3>
-        <div class="muted">Struktur komponen rapih, style konsisten, dan fungsi-fungsi mock sudah disiapkan.</div>
-      </div>
-      <button type="button" class="cta-btn" onclick="alert('Mantap! Tinggal sambungkan API cuaca & database.')">Saya Paham</button>
-    </div>
- 
-  <!-- DASHBOARD -->
-  
-
-
-
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container footer-wrap">
@@ -207,7 +148,7 @@
     <div class="footer-brand">
       <h2 class="brand-name">AgriAdapt</h2>
       <p>Asisten canggih untuk cuaca & rekomendasi tanam.  
-      Pantau kondisi realtime, dapatkan rekomendasi, dan simpan riwayat tanam Anda.</p>
+      Pantau kondisi realtime dan dapatkan rekomendasi terbaik untuk hasil panen maksimal.</p>
     </div>
 
     <!-- Tautan Navigasi -->
@@ -216,8 +157,6 @@
       <ul>
         <li><a href="#dashboard">Dashboard</a></li>
         <li><a href="#rekom">Rekomendasi</a></li>
-        <li><a href="#notifikasi">Notifikasi</a></li>
-        <li><a href="#riwayat">Riwayat</a></li>
       </ul>
     </div>
 
@@ -239,11 +178,27 @@
   <!-- Toast container -->
   <div id="toasts" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- JS di root -->
   <script>
     window.OPENWEATHER_KEY = "1892b48b6f9df4ffa4b0158304dc2190";
   </script>
   <script src="./script.js" defer></script>
+<!-- MODAL LOGIN ADMIN -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeLoginModal()">&times;</span>
+    <h2>Login Admin</h2>
+    <div class="space"></div>
+    <input type="text" id="adminUsername" class="input" placeholder="Username" autocomplete="username">
+    <div class="space"></div>
+    <input type="password" id="adminPassword" class="input" placeholder="Password" autocomplete="current-password">
+    <div class="space"></div>
+    <button class="btn primary" onclick="doLogin()" style="width:100%">Login</button>
+    <div class="space"></div>
+    <div id="loginError" class="muted" style="color:var(--danger);display:none;text-align:center"></div>
+  </div>
+</div>
 
+<!-- Toast container -->
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

@@ -1,8 +1,6 @@
 // ===== Utils =====
 const $ = (sel) => document.querySelector(sel);
 const el = (tag, opts = {}) => Object.assign(document.createElement(tag), opts);
-const scrollToEl = (sel) =>
-  document.querySelector(sel)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 // ===== Toast / Popup helper =====
 function showToast(msg, type = "ok") {
@@ -59,10 +57,11 @@ const COMMODITY_PROFILES = {
   Tomat: { temp: [18, 28], hum: [55, 75] },
   Kangkung: { temp: [24, 32], hum: [60, 95] },
 };
+
 const LAHAN_FACTORS = {
   Sawah: { windPenalty: 1.0, humFlex: 0 },
   Tegalan: { windPenalty: 1.2, humFlex: 0 },
-  Greenhouse: { windPenalty: 0.6, humFlex: 5 },
+  Kebun: { windPenalty: 0.8, humFlex: 3 },
 };
 
 // ===== Kalkulasi IKM =====
@@ -204,76 +203,98 @@ async function fakeFetchWeather() {
 function updateRekom() {
   const kom = $("#selectKomoditas").value;
   const lahan = $("#selectLahan").value;
-  $("#rekomTitle").textContent = `Rekomendasi untuk ${kom} • ${lahan}`;
+  const musim = $("#selectMusim").value;
+  
+  $("#rekomTitle").textContent = `${kom} • ${lahan} • ${musim}`;
+  
   const list = $("#rekomList");
   const tips = {
-    Padi: ["Periksa ketersediaan air irigasi.", "Gunakan benih bersertifikat.", "Pemupukan awal N-P-K berimbang.", "Cek hama wereng & tikus."],
-    Jagung: ["Jarak tanam 70x20 cm.", "N cukup untuk vegetatif.", "Drainase baik.", "Pantau ulat grayak."],
-    Cabai: ["Mulsa untuk kelembapan.", "Penyiraman terukur.", "Pengendalian OPT terpadu.", "K tinggi saat generatif."],
-    Tomat: ["Media porous & kaya organik.", "Ajir/staking.", "Cek bercak daun/late blight.", "Pupuk kalsium untuk buah."],
-    Kangkung: ["Tanah lembap.", "Panen 25–30 HST.", "Cegah gulma.", "Cahaya cukup."],
+    Padi: {
+      Kemarau: [
+        "Pastikan irigasi tersedia sepanjang musim",
+        "Gunakan varietas tahan kekeringan seperti Inpari 32",
+        "Pemupukan N-P-K seimbang, hindari kelebihan nitrogen",
+        "Awasi hama wereng coklat yang aktif saat kemarau"
+      ],
+      Hujan: [
+        "Buat saluran drainase yang baik",
+        "Gunakan varietas tahan rebah",
+        "Kurangi dosis pemupukan nitrogen",
+        "Waspada penyakit blast dan hawar daun"
+      ]
+    },
+    Tomat: {
+      Kemarau: [
+        "Penyiraman teratur 2x sehari saat panas",
+        "Gunakan mulsa untuk menjaga kelembapan tanah",
+        "Berikan naungan parsial saat terik",
+        "Tingkatkan pupuk kalium untuk kualitas buah"
+      ],
+      Hujan: [
+        "Media tanam harus porous dengan drainase baik",
+        "Gunakan plastik penutup untuk mengurangi hujan langsung",
+        "Waspada penyakit busuk daun",
+        "Kurangi frekuensi penyiraman"
+      ]
+    },
+    Kangkung: {
+      Kemarau: [
+        "Jaga tanah selalu lembap dengan penyiraman rutin",
+        "Tanam di lokasi yang agak teduh",
+        "Panen lebih cepat (20-25 hari) sebelum terlalu keras",
+        "Berikan pupuk organik cair seminggu sekali"
+      ],
+      Hujan: [
+        "Ideal untuk kangkung air",
+        "Pastikan tidak tergenang total",
+        "Waspada siput dan keong",
+        "Panen 25-30 hari setelah tanam"
+      ]
+    },
+    Cabai: {
+      Kemarau: [
+        "Penyiraman teratur, hindari stress air saat berbunga",
+        "Gunakan mulsa plastik hitam perak",
+        "Berikan pupuk NPK dengan K tinggi saat generatif",
+        "Awasi kutu daun dan trips"
+      ],
+      Hujan: [
+        "Buat bedengan tinggi dengan drainase sempurna",
+        "Gunakan atap plastik untuk mengurangi kelembapan",
+        "Waspada antraknosa dan busuk buah",
+        "Kurangi nitrogen, tingkatkan fosfor dan kalium"
+      ]
+    },
+    Jagung: {
+      Kemarau: [
+        "Pilih varietas tahan kekeringan",
+        "Tanam lebih rapat (60x20 cm)",
+        "Berikan pupuk nitrogen cukup saat vegetatif",
+        "Siram saat pembentukan tongkol"
+      ],
+      Hujan: [
+        "Buat drainase yang baik di sela barisan",
+        "Jarak tanam lebih lebar (75x25 cm)",
+        "Kurangi dosis nitrogen",
+        "Waspada penyakit bulai dan bercak daun"
+      ]
+    }
   };
+
   list.innerHTML = "";
-  (tips[kom] || []).forEach((t) => {
+  const rekomendasi = tips[kom]?.[musim] || [];
+  rekomendasi.forEach((t) => {
     const li = el("li", { textContent: t });
     list.appendChild(li);
   });
-  const extra = el("li", { innerHTML: `Mode lahan: <b>${lahan}</b> — atur irigasi & pupuk sesuai kondisi.` });
-  list.appendChild(extra);
 
   updateIKMFromSelections(); // sinkronkan IKM dg pilihan
 }
 
-// ===== Notifikasi (mock) =====
-function subscribeAlert() {
-  const email = $("#inputEmail").value.trim();
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    $("#notifStatus").innerHTML = '<span class="badge danger">Email tidak valid</span>';
-    showToast("Email tidak valid", "danger");
-    return;
-  }
-  localStorage.setItem("sf_email", email);
-  $("#notifStatus").innerHTML = `Aktif • Notifikasi akan dikirim ke <b>${email}</b> saat cuaca ekstrem.`;
-  showToast("Notifikasi email diaktifkan", "ok");
-}
-
-// ===== Riwayat Tanam (LocalStorage) =====
-function addLog() {
-  const crop = $("#crop").value.trim();
-  const date = $("#date").value;
-  const note = $("#note").value.trim();
-  if (!crop || !date) {
-    alert("Isi komoditas & tanggal.");
-    return;
-  }
-  const logs = JSON.parse(localStorage.getItem("sf_logs") || "[]");
-  const item = { id: Date.now(), crop, date, note };
-  logs.unshift(item);
-  localStorage.setItem("sf_logs", JSON.stringify(logs));
-  $("#crop").value = "";
-  $("#date").value = "";
-  $("#note").value = "";
-  renderLogs();
-  showToast("Riwayat tersimpan", "ok");
-}
-function delLog(id) {
-  const logs = JSON.parse(localStorage.getItem("sf_logs") || "[]").filter((x) => x.id !== id);
-  localStorage.setItem("sf_logs", JSON.stringify(logs));
-  renderLogs();
-  showToast("Riwayat dihapus", "warn");
-}
-function restoreLogs() {
-  renderLogs();
-}
-function renderLogs() {
-  const rows = $("#logRows");
-  rows.innerHTML = "";
-  const logs = JSON.parse(localStorage.getItem("sf_logs") || "[]");
-  for (const x of logs) {
-    const tr = el("tr");
-    tr.innerHTML = `<td>${x.date}</td><td>${x.crop}</td><td>${x.note || "-"}</td><td><button class='btn' onclick='delLog(${x.id})'>Hapus</button></td>`;
-    rows.appendChild(tr);
-  }
+// ===== Toggle Mobile Menu =====
+function toggleMenu() {
+  const menu = document.getElementById("mobileMenu");
+  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
 }
 
 // ===== Init =====
@@ -281,9 +302,9 @@ window.addEventListener("DOMContentLoaded", () => {
   // Tahun footer
   const yEl = $("#y");
   if (yEl) yEl.textContent = new Date().getFullYear();
+  
   // Auto isi saat load
   updateRekom();
-  restoreLogs();
   fakeFetchWeather();
 });
 
@@ -292,7 +313,7 @@ $("#selectKomoditas")?.addEventListener("change", updateIKMFromSelections);
 $("#selectLahan")?.addEventListener("change", updateIKMFromSelections);
 
 // --- Pastikan select selalu memicu update rekom + IKM ---
-["selectKomoditas", "selectLahan"].forEach((id) => {
+["selectKomoditas", "selectLahan", "selectMusim"].forEach((id) => {
   const s = document.getElementById(id);
   if (!s) return;
   ["change", "input"].forEach((ev) => {
@@ -302,7 +323,68 @@ $("#selectLahan")?.addEventListener("change", updateIKMFromSelections);
     });
   });
 });
-function toggleMenu() {
-  const menu = document.getElementById("mobileMenu");
-  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+// ===== Login Admin =====
+function showLoginModal() {
+  document.getElementById("loginModal").style.display = "block";
+  document.getElementById("loginError").style.display = "none";
+  document.getElementById("adminUsername").value = "";
+  document.getElementById("adminPassword").value = "";
 }
+
+function closeLoginModal() {
+  document.getElementById("loginModal").style.display = "none";
+}
+
+function doLogin() {
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value.trim();
+  const errorEl = document.getElementById("loginError");
+
+  // Kredensial admin (ganti sesuai kebutuhan)
+  const ADMIN_USER = "admin";
+  const ADMIN_PASS = "admin123";
+
+  if (!username || !password) {
+    errorEl.textContent = "Username dan password harus diisi!";
+    errorEl.style.display = "block";
+    return;
+  }
+
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    showToast("Login berhasil! Selamat datang Admin.", "ok");
+    closeLoginModal();
+    
+    // Simpan status login (opsional)
+    localStorage.setItem("isAdminLoggedIn", "true");
+    localStorage.setItem("adminUsername", username);
+    
+    // Redirect ke halaman admin atau tampilkan fitur admin
+    setTimeout(() => {
+      alert("Fitur admin bisa ditambahkan di sini!");
+    }, 500);
+  } else {
+    errorEl.textContent = "Username atau password salah!";
+    errorEl.style.display = "block";
+    showToast("Login gagal. Periksa kredensial Anda.", "danger");
+  }
+}
+
+// Tutup modal jika klik di luar modal
+window.onclick = function(event) {
+  const modal = document.getElementById("loginModal");
+  if (event.target === modal) {
+    closeLoginModal();
+  }
+}
+
+// Enter key untuk login
+document.addEventListener("DOMContentLoaded", function() {
+  const passwordInput = document.getElementById("adminPassword");
+  if (passwordInput) {
+    passwordInput.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        doLogin();
+      }
+    });
+  }
+});
